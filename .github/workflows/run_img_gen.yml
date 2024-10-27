@@ -1,11 +1,19 @@
-name: Run Image generation Flask App
+name: Run Image Generation Flask App
 
 on:
-  workflow_dispatch:  # This allows the workflow to be triggered manually or via API
+  workflow_dispatch:
+    inputs:
+      titles:
+        description: 'Titles for the podcast cover'
+        required: true
+      episode_id:
+        description: 'Episode ID for the podcast cover'
+        required: true
 
 jobs:
   run_flask:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,5 +29,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Flask App
+        env:
+          TITLES: ${{ github.event.inputs.titles }}
+          EPISODE_ID: ${{ github.event.inputs.episode_id }}
         run: |
-          python app.py  # Or however you run your Flask app
+          echo "Running Flask App with Titles: $TITLES and Episode ID: $EPISODE_ID"
+          python app.py  # Ensure your app.py is configured to read these environment variables
