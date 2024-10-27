@@ -1,19 +1,20 @@
 name: Run Image Generation Flask App
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Allows the workflow to be triggered manually or via API
     inputs:
       titles:
-        description: 'Titles for the podcast cover'
+        description: 'Titles for the podcast'
         required: true
+        default: 'Default Title'  # Optional default value
       episode_id:
-        description: 'Episode ID for the podcast cover'
+        description: 'Episode ID for the podcast'
         required: true
+        default: '1'  # Optional default value
 
 jobs:
   run_flask:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,9 +30,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Flask App
-        env:
-          TITLES: ${{ github.event.inputs.titles }}
-          EPISODE_ID: ${{ github.event.inputs.episode_id }}
         run: |
-          echo "Running Flask App with Titles: $TITLES and Episode ID: $EPISODE_ID"
-          python app.py  # Ensure your app.py is configured to read these environment variables
+          nohup python app.py &  # Run Flask app in the background
+
+      - name: Wait for Flask App to Start
+        run: |
+          sleep 10  # Wait for 10 seconds to ensure the Flask app is up
+
+      - name: Call Flask API
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"titles\": \"${{ github.event.inputs.titles }}\", \"episode_id\": \"${{ github.event.inputs.episode_id }}\"}" \
+          http://127.0.0.1:5000/generate_podcast_cover  # Adjust the URL if necessary
