@@ -15,6 +15,11 @@ on:
 jobs:
   run_flask:
     runs-on: ubuntu-latest
+    env:  # Set environment variables from GitHub Secrets
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_ORGANIZATION_ID: ${{ secrets.OPENAI_ORGANIZATION_ID }}
+      HUGGING_FACE_API: ${{ secrets.HUGGING_FACE_API }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
